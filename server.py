@@ -1,15 +1,19 @@
 from flask import Flask, request, render_template
 from geopy.geocoders import Bing
-import smtplib
+from twilio.rest import TwilioRestClient
 
-FROM = "pennapps123@gmail.com"
+BING_KEY = "AlqYZzlB6mXiSQCMUK9Wum48tQFs6pN0sG6kD43mmtS61jRz7mg72E5QQg5JBJO-"
+TWILIO_SID = "AC9867a6902e33cabe8d4085354077882a"
+TWILIO_TOKEN = "5298d24f86066d604ce7c690f29b7595"
+TWILIO_NUMBER = "+13238922618"
 
 app = Flask(__name__)
-geolocator = Bing("AlqYZzlB6mXiSQCMUK9Wum48tQFs6pN0sG6kD43mmtS61jRz7mg72E5QQg5JBJO-")
+geolocator = Bing(BING_KEY)
+twilio_client = TwilioRestClient(TWILIO_SID, TWILIO_TOKEN)
 
 @app.route("/")
 def main():
-    return "Hello World"
+    return "Hello world! You shouldn't be seeing this."
 
 @app.route("/config")
 def config():
@@ -25,28 +29,17 @@ def text():
 
     location = geolocator.reverse((latitude, longitude))
 
-    # SMS message.
-    text = requester_name + " just fell down and was not responsive!" + \
+    text = "Watchdog: " + requester_name + \
+           " just fell down and was not responsive!" + \
            " This happened at " + location.address + ", coordinates " + \
            latitude + ", " + longitude
 
-    to = phone_number + "@txt.att.net"
-    smtpObj = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-    smtpObj.login("pennapps123@gmail.com", "XZicRmCQGC0f")
-
-    message = """\
-    From: %s
-    To: %s
-    Subject: text
-
-    %s
-    """ % (FROM, ", ".join(to), text)
+    twilio_client.messages.create(to=phone_number, from_=TWILIO_NUMBER,
+                                  body=text)
 
     print text
-    # email 6266026651@txt.att.net
-    smtpObj.sendmail(FROM, to, message)
 
-    return("Sending a text to " + to + ", who is at address " + \
+    return("Sending a text to " + phone_number + ", who is at address " + \
            location.address + " at coordinates " + latitude + ", " + longitude)
 
 if __name__ == "__main__":
