@@ -81,9 +81,9 @@ void call_for_help_callback(void *data) {
 }
 
 void alarm_phase() {
-  // Vibe pattern: ON for 200ms, OFF for 100ms, ON for 400ms:
-  static const uint32_t const segments[] = { 600, 100, 1300,
-					     600, 100, 1300 };
+  static const uint32_t const segments[] = { 600, 100, 1300, 500,
+					     600, 100, 1300, 500,
+					     600, 100, 1300, };
   uint32_t total_duration = 0;
   for (size_t i=0; i<sizeof segments/sizeof *segments; ++i)
     total_duration += segments[i];
@@ -103,8 +103,9 @@ void accel_handler(AccelData *data, uint32_t num_samples) {
   char buf[256];
   static int cnt;
   int x=data->x, y=data->y, z=data->z;
+  const int threshold = 700;
   int norm_sqr = x*x + y*y + z*z;
-  if (norm_sqr < 900*900) {
+  if (norm_sqr < threshold*threshold) {
     snprintf(buf, sizeof buf, "x,y,z: %d,%d,%d, norm_sqr=%d",
 	     x, y, z, norm_sqr);
     APP_LOG(APP_LOG_LEVEL_DEBUG, buf);

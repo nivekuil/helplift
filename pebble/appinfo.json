@@ -1,7 +1,9 @@
 {
-    "appKeys": { "KEY_STATE": 0 },
+    "appKeys": {
+	"KEY_STATE": 0
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "nivekuil@gmail.com",
     "longName": "PennAppsC",
