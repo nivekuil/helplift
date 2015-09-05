@@ -2,7 +2,6 @@ from flask import Flask, request, render_template
 import smtplib
 
 FROM = "pennapps123@gmail.com"
-TEXT = " just fell and may need your help!"
 
 app = Flask(__name__)
 
@@ -19,6 +18,8 @@ def text():
 
     requester_name = request.args.get('name')
     phone_number = request.args.get('number')
+    latitude = request.args.get('lat')
+    longitude = request.args.get('lon')
 
     to = phone_number + "@txt.att.net"
     smtpObj = smtplib.SMTP_SSL("smtp.gmail.com", 465)
@@ -30,10 +31,13 @@ def text():
     Subject: text
 
     %s
-    """ % (FROM, ", ".join(to), requester_name + TEXT)
+    """ % (FROM, ", ".join(to),
+           requester_name + " just fell and may need your help!"
+           + " The distress call came from " + latitude + " " + longitude)
+
     print requester_name + TEXT
     print "Sending email to", to
-    # smtpObj.sendmail(FROM, TO, message)
+    # smtpObj.sendmail(FROM, to, message)
 
     return("Sending a text..")
 
