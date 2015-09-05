@@ -15,7 +15,7 @@ def text():
     msg = Message("Hello", sender="nivekuil@gmail.com",
                   recipients="6266026651@txt.att.net")
 
-    mail.send()
+    mail.send(msg)
 
 if __name__ == "__main__":
     app.run(debug=True)
