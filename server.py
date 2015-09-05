@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_mail import Message, Mail
+import smtplib
+
+FROM = "kevin@couchjam.com"
+TO = "6266026651@txt.att.net"
+
+smtpObj = smtplib.SMTP_SSL("smtp.zoho.com", 465)
+smtpObj.login("kevin@couchjam.com", "Db1g91Q98l67")
 
 app = Flask(__name__)
-app.config["MAIL_SERVER"] = "smtp.zoho.com"
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USE_SSL"] = True
-app.config["MAIL_USERNAME"] = "kevin@couchjam.com"
-app.config["MAIL_PASSWORD"] = "Db1g91Q98l67"
-mail = Mail(app)
 
 @app.route("/")
 def main():
@@ -16,11 +16,17 @@ def main():
 @app.route("/text")
 def text():
 
+    print "Hello"
     # email 6266026651@txt.att.net
-    msg = Message("Hello", sender="nivekuil@gmail.com",
-                  recipients="6266026651@txt.att.net")
+    message = """\
+    From: %s
+    To: %s
+    Subject: text
 
-    mail.send(msg)
+    %s
+    """ % (FROM, ", ".join(TO), TEXT)
+    smtpObj.sendmail(FROM, TO, message)
+
     return("Sending a text..")
 
 if __name__ == "__main__":
