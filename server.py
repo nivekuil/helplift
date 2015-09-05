@@ -2,7 +2,7 @@ from flask import Flask
 from flask_mail import Message, Mail
 
 app = Flask(__name__)
-mail = Mail()
+mail = Mail(app)
 
 @app.route("/")
 def main():
@@ -16,6 +16,7 @@ def text():
                   recipients="6266026651@txt.att.net")
 
     mail.send(msg)
+    return("Sending a text..")
 
 if __name__ == "__main__":
     app.run(debug=True)
