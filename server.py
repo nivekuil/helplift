@@ -35,7 +35,6 @@ def text():
            requester_name + " just fell and may need your help!"
            + " The distress call came from " + latitude + " " + longitude)
 
-    print requester_name + TEXT
     print "Sending email to", to
     # smtpObj.sendmail(FROM, to, message)
 
