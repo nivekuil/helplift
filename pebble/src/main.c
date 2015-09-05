@@ -1,5 +1,8 @@
 #include <pebble.h>
 #include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <stdbool.h>
 
 Window *window;
 TextLayer *text_layer;
@@ -8,12 +11,40 @@ enum result_keys {
   KEY_STATE = 0,
 };
 
+#define RING_BUFFER_SIZE 5
+#define BUF_LEN 80
+
+AppTimer * s_alarm_timer = NULL;
+bool can_abort = false;
+
 #define my_assert(cond)				\
   do if (!(cond)) {				\
       APP_LOG(APP_LOG_LEVEL_ERROR, #cond);	\
     } while(0)
 
-AppTimer * s_alarm_timer = NULL;
+struct ring_buffer {
+  double data[RING_BUFFER_SIZE];
+  int end_index;
+  double sum;
+} rb_len;
+
+void ring_buffer_init(struct ring_buffer *rb) {
+  const double default_value = 1000;
+  rb->sum = default_value*RING_BUFFER_SIZE;
+  rb->end_index = 0;
+  for (int i=0; i<RING_BUFFER_SIZE; ++i)
+    rb->data[i] = default_value;
+}
+
+void ring_buffer_add(struct ring_buffer *rb, double value) {
+  rb->sum -= rb->data[rb->end_index];
+  rb->data[rb->end_index] = value;
+  rb->sum += rb->data[rb->end_index];
+  rb->end_index = (rb->end_index + 1)%RING_BUFFER_SIZE;
+}
+double ring_buffer_sum(struct ring_buffer *const rb) {
+  return rb->sum;
+}
 
 static void inbox_received_callback(DictionaryIterator *iterator,
 				    void *context) {
@@ -80,8 +111,15 @@ void call_for_help_callback(void *data) {
   call_for_help();
 }
 
+void set_can_abort(void *data) {
+  can_abort = true;
+}
+
 void alarm_phase() {
   static const uint32_t const segments[] = { 600, 100, 1300, 500,
+					     600, 100, 1300, 500,
+					     600, 100, 1300, 500,
+					     600, 100, 1300, 500,
 					     600, 100, 1300, 500,
 					     600, 100, 1300, };
   uint32_t total_duration = 0;
@@ -94,41 +132,61 @@ void alarm_phase() {
   };
   vibes_enqueue_custom_pattern(pat);
 
+  can_abort = false;
   s_alarm_timer = app_timer_register(total_duration,
 				     call_for_help_callback,
 				     NULL);
+  app_timer_register(1000, set_can_abort, NULL);
 }
 
-void accel_handler(AccelData *data, uint32_t num_samples) {
-  char buf[256];
-  static int cnt;
-  int x=data->x, y=data->y, z=data->z;
-  const int threshold = 700;
-  int norm_sqr = x*x + y*y + z*z;
-  if (norm_sqr < threshold*threshold) {
-    snprintf(buf, sizeof buf, "x,y,z: %d,%d,%d, norm_sqr=%d",
-	     x, y, z, norm_sqr);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
+double my_sqrt(double x) {
+  double l=0, r=x;
+  while (r-l >= 1e-8) {
+    double m=(l+r)/2;
+    if (m*m > x)
+      r = m;
+    else
+      l = m;
+  }
 
-    if (!s_alarm_timer) {
-      alarm_phase();
-    }
-  }
-  if (!(++cnt % 100)) {
-    snprintf(buf, sizeof buf, "still alive: x,y,z: %d,%d,%d, norm_sqr=%d",
-	     x, y, z, norm_sqr);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
-  }
+  return l;
 }
 
-void single_click_handler(ClickRecognizerRef recognizer, void *context) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "down single lcick handler");
-  // TODO: synchronization?
+double hypot3(double x, double y, double z) {
+  return my_sqrt(x*x + y*y + z*z);
+}
+
+void cancel_timer() {
+  vibes_cancel();
   if (s_alarm_timer) {
     app_timer_cancel(s_alarm_timer);
     s_alarm_timer = NULL;
   }
-  vibes_cancel();
+}
+
+void accel_handler(AccelData *data, uint32_t num_samples) {
+  char buf[BUF_LEN];
+
+  ring_buffer_add(&rb_len, hypot3(data->x, data->y, data->z));
+
+  double avg_len = ring_buffer_sum(&rb_len)/RING_BUFFER_SIZE;
+  snprintf(buf, sizeof buf, "avg length=%d", (int)avg_len);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
+
+  const int free_fall_threshold = 300;
+  const int intentional_shaking_threshold = 4500;
+
+  if (avg_len < free_fall_threshold) {
+    if (!s_alarm_timer)
+      alarm_phase();
+  } else if (avg_len > intentional_shaking_threshold) {
+    if (can_abort)
+      cancel_timer();
+  }
+}
+
+void single_click_handler(ClickRecognizerRef recognizer, void *context) {
+  cancel_timer();
 }
 
 void config_provider(Window *window) {
@@ -165,6 +223,8 @@ void handle_init(void) {
   window_set_click_config_provider(window, (ClickConfigProvider) config_provider);
 
  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+
+ ring_buffer_init(&rb_len);
 
   // App Logging!
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Just pushed a window!");
