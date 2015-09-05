@@ -2,6 +2,11 @@
 
 body {
     font-family: roboto, Arial;
+    font-size: 150%;
+}
+
+div {
+    margin: 5px 5px;
 }
 
 button {
