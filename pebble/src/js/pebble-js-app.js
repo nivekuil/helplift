@@ -1,3 +1,5 @@
+var base_url = 'http://nivekuil.pythonanywhere.com/';
+
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open(type, url);
@@ -6,13 +8,7 @@ var xhrRequest = function (url, type, callback) {
           if (xhr.status!=404) {
               console.log("response: " + xhr.responseText);
               callback(xhr.responseText);
-          } else {
-              console.log("status changing to " + xhr.status);
-              console.log("response: " + xhr.responseText);
-
           }
-      } else {
-          console.log("state changing to " + xhr.readyState);
       }
   };
   xhr.send();
@@ -20,15 +16,13 @@ var xhrRequest = function (url, type, callback) {
 
 function askForHelp() {
   // Construct URL
-  var url = "http://nivekuil.pythonanywhere.com/text";
-
-  console.log("loading " + url + "...")
+  var url = base_url + "text?name=test_app&phone_number=12345&lat=123&lon=456";
 
   // Send request to OpenWeatherMap
   xhrRequest(url, 'GET',
     function(responseText) {
       // responseText contains a JSON object with weather info
-      console.log("success, got " + responseText)
+      console.log("success, got " + responseText);
 
       //var json = JSON.parse(responseText);
 
@@ -50,6 +44,12 @@ function askForHelp() {
   );
 }
 
+Pebble.addEventListener('showConfiguration', function(e) {
+  console.log("show config, open " + base_url + 'config');
+  // Show config page
+  Pebble.openURL(base_url + 'config');
+});
+
 // Listen for when the watchface is opened
 Pebble.addEventListener('ready',
   function(e) {
@@ -63,3 +63,9 @@ Pebble.addEventListener('appmessage',
     askForHelp();
   }
 );
+
+Pebble.addEventListener('webviewclosed', function(e) {
+  console.log('Configuration window returned: ' + e.response);
+});
+
+console.log("JS loaded, but not ready yet!");
