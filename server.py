@@ -1,11 +1,10 @@
 from flask import Flask
 import smtplib
 
-FROM = "kevin@couchjam.com"
+FROM = "pennapps123@gmail.com"
 TO = "6266026651@txt.att.net"
+TEXT = "Hello"
 
-smtpObj = smtplib.SMTP_SSL("smtp.zoho.com", 465)
-smtpObj.login("kevin@couchjam.com", "Db1g91Q98l67")
 
 app = Flask(__name__)
 
@@ -17,6 +16,8 @@ def main():
 def text():
 
     print "Hello"
+    smtpObj = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    smtpObj.login("pennapps123@gmail.com", "XZicRmCQGC0f")
     # email 6266026651@txt.att.net
     message = """\
     From: %s
