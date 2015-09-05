@@ -2,6 +2,11 @@ from flask import Flask
 from flask_mail import Message, Mail
 
 app = Flask(__name__)
+app.config["MAIL_SERVER"] = "smtp.zoho.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_USERNAME"] = "kevin@couchjam.com"
+app.config["MAIL_PASSWORD"] = "Db1g91Q98l67"
 mail = Mail(app)
 
 @app.route("/")
