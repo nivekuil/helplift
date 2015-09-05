@@ -1,0 +1,8 @@
+blinker
+Flask
+geopy
+itsdangerous
+Jinja2
+MarkupSafe
+Werkzeug
+wheel
