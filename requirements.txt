@@ -1,6 +1,8 @@
+[33mYou are using pip version 7.1.0, however version 7.1.2 is available.
+You should consider upgrading via the 'pip install --upgrade pip' command.[0m
 blinker==1.4
 Flask==0.10.1
-Flask-Mail==0.9.1
+geopy==1.11.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
