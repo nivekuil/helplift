@@ -117,10 +117,6 @@ void set_can_abort(void *data) {
 
 void alarm_phase() {
   static const uint32_t const segments[] = { 600, 100, 1300, 500,
-					     600, 100, 1300, 500,
-					     600, 100, 1300, 500,
-					     600, 100, 1300, 500,
-					     600, 100, 1300, 500,
 					     600, 100, 1300, };
   uint32_t total_duration = 0;
   for (size_t i=0; i<sizeof segments/sizeof *segments; ++i)
@@ -130,6 +126,8 @@ void alarm_phase() {
     .durations = segments,
     .num_segments = ARRAY_LENGTH(segments),
   };
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "start alarm phase");
+
   vibes_enqueue_custom_pattern(pat);
 
   can_abort = false;
@@ -162,16 +160,17 @@ void cancel_timer() {
     app_timer_cancel(s_alarm_timer);
     s_alarm_timer = NULL;
   }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "cancel timer");
 }
 
 void accel_handler(AccelData *data, uint32_t num_samples) {
-  char buf[BUF_LEN];
+  //char buf[BUF_LEN];
 
   ring_buffer_add(&rb_len, hypot3(data->x, data->y, data->z));
 
   double avg_len = ring_buffer_sum(&rb_len)/RING_BUFFER_SIZE;
-  snprintf(buf, sizeof buf, "avg length=%d", (int)avg_len);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
+  // snprintf(buf, sizeof buf, "avg length=%d", (int)avg_len);
+  // APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
 
   const int free_fall_threshold = 300;
   const int intentional_shaking_threshold = 4500;
@@ -202,7 +201,7 @@ void handle_init(void) {
   text_layer = text_layer_create(GRect(0, 0, 144, 154));
 
   // Set the text, font, and text alignment
-  text_layer_set_text(text_layer, "HelpLift ready!");
+  text_layer_set_text(text_layer, "WatchDog ready!");
   text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
 

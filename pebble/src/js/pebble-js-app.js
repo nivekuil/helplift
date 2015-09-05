@@ -1,5 +1,10 @@
 var base_url = 'http://nivekuil.pythonanywhere.com/';
 
+var config_name = "Kevin";
+var config_contact = "6266026651";
+var config_lat = "0";
+var config_lon = "0";
+
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open(type, url);
@@ -8,40 +13,74 @@ var xhrRequest = function (url, type, callback) {
           if (xhr.status!=404) {
               console.log("response: " + xhr.responseText);
               callback(xhr.responseText);
-          }
+
+	  }
       }
   };
   xhr.send();
 };
 
 function askForHelp() {
-  // Construct URL
-  var url = base_url + "text?name=test_app&phone_number=12345&lat=123&lon=456";
+  var do_request = function() {
+    // Construct URL
+    var url = base_url + "text" +
+	"?name=" + config_name +
+	"&number=" + config_contact +
+	"&lat=" + config_lat +
+	"&lon=" + config_lon;
+    console.log("open url " + url);
 
-  // Send request to OpenWeatherMap
-  xhrRequest(url, 'GET',
-    function(responseText) {
-      // responseText contains a JSON object with weather info
-      console.log("success, got " + responseText);
+    // Send request to OpenWeatherMap
+    xhrRequest(url, 'GET',
+      function(responseText) {
+        // responseText contains a JSON object with weather info
+        console.log("success, got " + responseText);
 
-      //var json = JSON.parse(responseText);
+        //var json = JSON.parse(responseText);
 
-      // Assemble dictionary using our keys
-      var dictionary = {
-        "STATE": 1, // success
-      };
+        // Assemble dictionary using our keys
+        var dictionary = {
+          "STATE": 1, // success
+        };
 
-      // Send to Pebble
-      Pebble.sendAppMessage(dictionary,
-        function(e) {
-          console.log("Weather info sent to Pebble successfully!");
-        },
-        function(e) {
-          console.log("Error sending weather info to Pebble!");
-        }
-      );
-    }
-  );
+        // Send to Pebble
+        Pebble.sendAppMessage(dictionary,
+          function(e) {
+            console.log("Weather info sent to Pebble successfully!");
+          },
+          function(e) {
+            console.log("Error sending weather info to Pebble!");
+          }
+        );
+      }
+    );
+  };
+
+
+  var locationSuccess = function(pos) {
+    console.log('lat= ' + pos.coords.latitude + ' lon= ' + pos.coords.longitude);
+    config_lat = pos.coords.latitude;
+    config_lon = pos.coords.longitude;
+    do_request();
+  };
+
+  var locationError = function (err) {
+    console.log('location error (' + err.code + '): ' + err.message);
+    config_lat = 0;
+    config_lon = 0;
+    do_request();
+  };
+
+  var locationOptions = {
+    enableHighAccuracy: true,
+    maximumAge: 10000,
+    timeout: 10000
+  };
+
+  navigator.geolocation.getCurrentPosition(locationSuccess,
+					   locationError,
+					   locationOptions);
+
 }
 
 Pebble.addEventListener('showConfiguration', function(e) {
@@ -60,12 +99,14 @@ Pebble.addEventListener('ready',
 // Listen for when an AppMessage is received
 Pebble.addEventListener('appmessage',
   function(e) {
+    console.log("name: " + config_name);
+    console.log("contact: " + config_contact);
     askForHelp();
   }
 );
 
 Pebble.addEventListener('webviewclosed', function(e) {
-  console.log('Configuration window returned: ' + e.response);
+  var config = JSON.parse(e.response);
+  config_name = config.name;
+  config_contact = config.contact;
 });
-
-console.log("JS loaded, but not ready yet!");
