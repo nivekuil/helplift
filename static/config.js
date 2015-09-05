@@ -5,6 +5,7 @@ document.body.onload = function() {
       'name': document.getElementById("name").value,
       'contact': document.getElementById("contact").value
     };
+    console.log(config);
     location.href = "pebblejs://close#" +
       encodeURIComponent(JSON.stringify(config));
   };
