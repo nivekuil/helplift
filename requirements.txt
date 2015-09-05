@@ -1,0 +1,11 @@
+amp==0.1.0
+autopep8==1.1.1
+mps-youtube==0.2.5
+numpy==1.9.2
+packaging==15.3
+pafy==0.3.74
+pep8==1.6.2
+psutil==3.1.1
+team==1.0
+virtualenv==13.1.0
+youtube-dl==2015.8.23
