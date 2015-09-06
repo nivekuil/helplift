@@ -1,0 +1,39 @@
+@import url(https://fonts.googleapis.com/css?family=Bitter:700);
+html,body {
+  height:100%;
+}
+
+h1 {
+  font-family: 'Bitter', serif;
+  font-size:80px;
+  color:#1872B1;
+}
+
+.lead {
+  color: #0797FC;
+}
+
+/* Custom container */
+.main-container {
+  width: 100%;
+  min-height:100%;
+  background-color:#f5deb3;
+  color:#eee;
+}
+
+.container-full p {
+  color: black;
+}
+
+.panel-primary {
+    color: black;
+}
+
+.container-full .panel-heading {
+    background-color: #1872B1;
+}
+
+.container-full a {
+  color:#efefef;
+  text-decoration:none;
+}

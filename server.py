@@ -15,7 +15,7 @@ twilio_client = TwilioRestClient(TWILIO_SID, TWILIO_TOKEN)
 
 @app.route("/")
 def main():
-    return "Hello world! You shouldn't be seeing this."
+    return render_template("home.html")
 
 @app.route("/config")
 def config():
