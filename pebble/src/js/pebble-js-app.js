@@ -1,4 +1,4 @@
-var base_url = 'http://nivekuil.pythonanywhere.com/';
+var base_url = 'https://watchdog.mybluemix.com/';
 
 var config_name = "Kevin";
 var config_contact = "6266026651";
