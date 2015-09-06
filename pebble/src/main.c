@@ -74,10 +74,10 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   }
 
   if (state != -1) {
-    if (state == 0)
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 0!");
-    else if (state == 1)
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 1!");
+    if (state == 1)
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Call finished");
+    else if (state == 0)
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Call failed!");
     else
       APP_LOG(APP_LOG_LEVEL_ERROR, "Got weird state!");
   }
@@ -123,7 +123,7 @@ void alarm_phase() {
   static const uint32_t segments_pattern[] = { 600, 100, 1300, 500 };
 
   size_t len = 3;
-  for (int i=1; i<num_passes; ++i, ++len)
+  for (int i=4; i<4*num_passes; ++i, ++len)
     segments[len] = segments_pattern[len%ARRAY_LENGTH(segments_pattern)];
   uint32_t total_duration = 0;
   for (size_t i=0; i<len; ++i)
