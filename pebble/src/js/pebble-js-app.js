@@ -1,4 +1,4 @@
-var base_url = '10.59.73.134:5000/';
+var base_url = 'http://nivekuil.pythonanywhere.com/';
 
 var config_name = "Kevin";
 var config_contact = "6266026651";
