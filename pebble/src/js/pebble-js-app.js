@@ -1,4 +1,4 @@
-var base_url = 'http://nivekuil.pythonanywhere.com/';
+var base_url = '10.59.73.134:5000/';
 
 var config_name = "Kevin";
 var config_contact = "6266026651";
@@ -9,13 +9,16 @@ var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open(type, url);
   xhr.onreadystatechange = function () {
-      if (xhr.readyState==4) {
-          if (xhr.status!=404) {
-              console.log("response: " + xhr.responseText);
-              callback(xhr.responseText);
-
-	  }
+    if (xhr.readyState==4) {
+      if (xhr.status!=404) {
+        console.log("response: " + xhr.responseText);
+        callback(xhr.responseText);
+      } else {
+	console.log("states != 404: " + xhr.status);
       }
+    } else {
+      console.log("readyState != 4: " + xhr.readyState);
+    }
   };
   xhr.send();
 };

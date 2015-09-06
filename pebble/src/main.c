@@ -172,7 +172,7 @@ void accel_handler(AccelData *data, uint32_t num_samples) {
   // snprintf(buf, sizeof buf, "avg length=%d", (int)avg_len);
   // APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
 
-  const int free_fall_threshold = 300;
+  const int free_fall_threshold = 350;
   const int intentional_shaking_threshold = 4500;
 
   if (avg_len < free_fall_threshold) {
