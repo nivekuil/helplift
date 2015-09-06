@@ -27,7 +27,7 @@
 
         <div class="form-group">
             <label class="control-label" for="name">Seconds of vibration before distress message is sent:</label>
-            <form oninput="amount.value=slider.value">
+            <form>
                 <input id="slider" type="range" name="sliderRange" min="10" max="70" step="2" value="40" oninput="this.form.sliderInput.value=this.value" />
                 <input type="number" name="sliderInput" min="10" max="70" step="2" value="40" oninput="this.form.sliderRange.value=this.value"/>
             </form>
