@@ -8,7 +8,8 @@ Window *window;
 TextLayer *text_layer;
 
 enum result_keys {
-  KEY_STATE = 0,
+  KEY_STATE = 1,
+  KEY_NUM_PASSES = 2,
 };
 
 #define RING_BUFFER_SIZE 5
@@ -16,6 +17,9 @@ enum result_keys {
 
 AppTimer * s_alarm_timer = NULL;
 bool can_abort = false;
+
+#define MAX_PASSES 20
+int num_passes = 4;
 
 #define my_assert(cond)				\
   do if (!(cond)) {				\
@@ -53,31 +57,30 @@ static void inbox_received_callback(DictionaryIterator *iterator,
 
   int state = -1;
 
-  // For all items
-  while(t != NULL) {
-    // Which key was received?
+  for (; t != NULL; t = dict_read_next(iterator)) {
     switch(t->key) {
     case KEY_STATE:
       my_assert(state == -1);
       state = (int)t->value->int32;
       my_assert(state != -1);
       break;
+    case KEY_NUM_PASSES:
+      num_passes = (int)t->value->int32;
+      my_assert(1 <= num_passes && num_passes <= MAX_PASSES);
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
       break;
     }
-
-    // Look for next item
-    t = dict_read_next(iterator);
   }
 
-  if (state == 0)
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 0!");
-  else if (state == 1)
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 1!");
-  else
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Got weird state!");
-
+  if (state != -1) {
+    if (state == 0)
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 0!");
+    else if (state == 1)
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 1!");
+    else
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Got weird state!");
+  }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -116,15 +119,19 @@ void set_can_abort(void *data) {
 }
 
 void alarm_phase() {
-  static const uint32_t const segments[] = { 600, 100, 1300, 500,
-					     600, 100, 1300, };
+  static uint32_t segments[4*MAX_PASSES] = { 600, 100, 1300 };
+  static const uint32_t segments_pattern[] = { 600, 100, 1300, 500 };
+
+  size_t len = 3;
+  for (int i=1; i<num_passes; ++i, ++len)
+    segments[len] = segments_pattern[len%ARRAY_LENGTH(segments_pattern)];
   uint32_t total_duration = 0;
-  for (size_t i=0; i<sizeof segments/sizeof *segments; ++i)
+  for (size_t i=0; i<len; ++i)
     total_duration += segments[i];
 
   VibePattern pat = {
     .durations = segments,
-    .num_segments = ARRAY_LENGTH(segments),
+    .num_segments = len,
   };
   APP_LOG(APP_LOG_LEVEL_DEBUG, "start alarm phase");
 
