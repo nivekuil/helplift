@@ -7,13 +7,13 @@
         "configurable"
     ],
     "companyName": "nivekuil@gmail.com",
-    "longName": "WatchDog",
+    "longName": "Watchdog",
     "projectType": "native",
     "resources": {
         "media": []
     },
     "sdkVersion": "3",
-    "shortName": "WatchDog",
+    "shortName": "Watchdog",
     "uuid": "5c4e52b8-d0dd-4dde-aa5d-617c5b040571",
     "versionLabel": "1.1",
     "watchapp": {
