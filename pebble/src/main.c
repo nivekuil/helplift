@@ -18,7 +18,7 @@ enum result_keys {
 AppTimer * s_alarm_timer = NULL;
 bool can_abort = false;
 
-#define MAX_PASSES 20
+#define MAX_PASSES 21
 int num_passes = 4;
 
 #define my_assert(cond)				\
@@ -66,7 +66,17 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       break;
     case KEY_NUM_PASSES:
       num_passes = (int)t->value->int32;
-      my_assert(1 <= num_passes && num_passes <= MAX_PASSES);
+      my_assert(1 <= num_passes && num_passes < MAX_PASSES);
+
+      char buf[256];
+       snprintf(buf, sizeof buf, "num_passes=%d", (int)num_passes);
+       APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
+
+      if (num_passes < 1)
+	num_passes = 1;
+      if (num_passes >= MAX_PASSES)
+	num_passes = MAX_PASSES - 1;
+      break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
       break;
@@ -74,10 +84,10 @@ static void inbox_received_callback(DictionaryIterator *iterator,
   }
 
   if (state != -1) {
-    if (state == 0)
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 0!");
-    else if (state == 1)
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Got state 1!");
+    if (state == 1)
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Call finished");
+    else if (state == 0)
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Call failed!");
     else
       APP_LOG(APP_LOG_LEVEL_ERROR, "Got weird state!");
   }
@@ -123,7 +133,7 @@ void alarm_phase() {
   static const uint32_t segments_pattern[] = { 600, 100, 1300, 500 };
 
   size_t len = 3;
-  for (int i=1; i<num_passes; ++i, ++len)
+  for (int i=4; i<4*num_passes; ++i, ++len)
     segments[len] = segments_pattern[len%ARRAY_LENGTH(segments_pattern)];
   uint32_t total_duration = 0;
   for (size_t i=0; i<len; ++i)
@@ -208,7 +218,7 @@ void handle_init(void) {
   text_layer = text_layer_create(GRect(0, 0, 144, 154));
 
   // Set the text, font, and text alignment
-  text_layer_set_text(text_layer, "WatchDog ready!");
+  text_layer_set_text(text_layer, "Watchdog ready!");
   text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
 
