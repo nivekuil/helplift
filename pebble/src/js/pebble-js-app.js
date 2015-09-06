@@ -99,8 +99,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
   config_name = config.name;
   config_contact = config.contact;
 
+  console.log("Response:" + e.response);
+
   var dictionary = {
-    "KEY_NUM_PASSES": config.num_passes,
+    "KEY_NUM_PASSES": parseInt(config.num_passes),
   };
 
   Pebble.sendAppMessage(dictionary,

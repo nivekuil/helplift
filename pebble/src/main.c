@@ -18,7 +18,7 @@ enum result_keys {
 AppTimer * s_alarm_timer = NULL;
 bool can_abort = false;
 
-#define MAX_PASSES 20
+#define MAX_PASSES 21
 int num_passes = 4;
 
 #define my_assert(cond)				\
@@ -66,7 +66,17 @@ static void inbox_received_callback(DictionaryIterator *iterator,
       break;
     case KEY_NUM_PASSES:
       num_passes = (int)t->value->int32;
-      my_assert(1 <= num_passes && num_passes <= MAX_PASSES);
+      my_assert(1 <= num_passes && num_passes < MAX_PASSES);
+
+      char buf[256];
+       snprintf(buf, sizeof buf, "num_passes=%d", (int)num_passes);
+       APP_LOG(APP_LOG_LEVEL_DEBUG, buf);
+
+      if (num_passes < 1)
+	num_passes = 1;
+      if (num_passes >= MAX_PASSES)
+	num_passes = MAX_PASSES - 1;
+      break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
       break;
