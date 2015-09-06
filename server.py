@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 from geopy.geocoders import Bing
 from twilio.rest import TwilioRestClient
 from sys import argv
+from os import getenv
 
 BING_KEY = "AlqYZzlB6mXiSQCMUK9Wum48tQFs6pN0sG6kD43mmtS61jRz7mg72E5QQg5JBJO-"
 TWILIO_SID = "AC9867a6902e33cabe8d4085354077882a"
@@ -43,8 +44,10 @@ def text():
     return("Sending a text to " + phone_number + ", who is at address " + \
            location.address + " at coordinates " + latitude + ", " + longitude)
 
+
 if __name__ == "__main__":
     if len(argv) == 2 and argv[1] == 'production':
-        app.run(host='0.0.0.0')
+        port = getenv('VCAP_APP_PORT', '5000')
+        app.run(host='0.0.0.0', port=int(port))
     else:
         app.run(debug=True)

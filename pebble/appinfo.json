@@ -1,20 +1,21 @@
 {
     "appKeys": {
-	"KEY_STATE": 0
+        "KEY_STATE": 1,
+        "KEY_NUM_PASSES": 2
     },
     "capabilities": [
         "configurable"
     ],
     "companyName": "nivekuil@gmail.com",
-    "longName": "PennAppsC",
+    "longName": "WatchDog",
     "projectType": "native",
     "resources": {
         "media": []
     },
     "sdkVersion": "3",
-    "shortName": "PennAppsC",
+    "shortName": "WatchDog",
     "uuid": "5c4e52b8-d0dd-4dde-aa5d-617c5b040571",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": false
     }

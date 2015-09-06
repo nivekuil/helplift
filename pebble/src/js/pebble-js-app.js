@@ -1,4 +1,4 @@
-var base_url = 'http://nivekuil.pythonanywhere.com/';
+var base_url = 'https://watchdog.mybluemix.net/';
 
 var config_name = "Kevin";
 var config_contact = "6266026651";
@@ -14,10 +14,8 @@ var xhrRequest = function (url, type, callback) {
         console.log("response: " + xhr.responseText);
         callback(xhr.responseText);
       } else {
-	console.log("states != 404: " + xhr.status);
+	console.log("state != 404: " + xhr.status);
       }
-    } else {
-      console.log("readyState != 4: " + xhr.readyState);
     }
   };
   xhr.send();
@@ -25,7 +23,6 @@ var xhrRequest = function (url, type, callback) {
 
 function askForHelp() {
   var do_request = function() {
-    // Construct URL
     var url = base_url + "text" +
 	"?name=" + config_name +
 	"&number=" + config_contact +
@@ -33,26 +30,20 @@ function askForHelp() {
 	"&lon=" + config_lon;
     console.log("open url " + url);
 
-    // Send request to OpenWeatherMap
     xhrRequest(url, 'GET',
       function(responseText) {
-        // responseText contains a JSON object with weather info
         console.log("success, got " + responseText);
 
-        //var json = JSON.parse(responseText);
-
-        // Assemble dictionary using our keys
         var dictionary = {
-          "STATE": 1, // success
+          "KEY_STATE": 1, // success
         };
 
-        // Send to Pebble
         Pebble.sendAppMessage(dictionary,
           function(e) {
-            console.log("Weather info sent to Pebble successfully!");
+            console.log("State info sent to Pebble successfully!");
           },
           function(e) {
-            console.log("Error sending weather info to Pebble!");
+            console.log("Error sending state info to Pebble!");
           }
         );
       }
@@ -77,7 +68,7 @@ function askForHelp() {
   var locationOptions = {
     enableHighAccuracy: true,
     maximumAge: 10000,
-    timeout: 10000
+    timeout: 10000,
   };
 
   navigator.geolocation.getCurrentPosition(locationSuccess,
@@ -88,22 +79,17 @@ function askForHelp() {
 
 Pebble.addEventListener('showConfiguration', function(e) {
   console.log("show config, open " + base_url + 'config');
-  // Show config page
   Pebble.openURL(base_url + 'config');
 });
 
-// Listen for when the watchface is opened
 Pebble.addEventListener('ready',
   function(e) {
     console.log("PebbleKit JS ready!");
   }
 );
 
-// Listen for when an AppMessage is received
 Pebble.addEventListener('appmessage',
   function(e) {
-    console.log("name: " + config_name);
-    console.log("contact: " + config_contact);
     askForHelp();
   }
 );
@@ -112,4 +98,17 @@ Pebble.addEventListener('webviewclosed', function(e) {
   var config = JSON.parse(e.response);
   config_name = config.name;
   config_contact = config.contact;
+
+  var dictionary = {
+    "KEY_NUM_PASSES": config.num_passes,
+  };
+
+  Pebble.sendAppMessage(dictionary,
+    function(e) {
+      console.log("Configuration sent to Pebble successfully!");
+    },
+    function(e) {
+      console.log("Error sending configuration to Pebble!");
+    }
+  );
 });
