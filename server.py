@@ -45,6 +45,6 @@ def text():
 
 if __name__ == "__main__":
     if len(argv) == 2 and argv[1] == 'production':
-        app.run(host='0.0.0.0', port=int(port))
+        app.run(host='0.0.0.0')
     else:
         app.run(debug=True)
