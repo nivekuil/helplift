@@ -1,0 +1,8 @@
+form {
+    text-align: center;
+}
+
+input[type="number"] {
+    border: none;
+    text-align: center;
+}
