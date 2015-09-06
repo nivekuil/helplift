@@ -19,7 +19,11 @@ AppTimer * s_alarm_timer = NULL;
 bool can_abort = false;
 
 #define MAX_PASSES 21
-int num_passes = 4;
+int num_passes = 15;
+
+const char *passive_text = "\nWatchdog active";
+const char *active_text = "Potential trauma detected\n\nPress any button to cancel distress countdown";
+
 
 #define my_assert(cond)				\
   do if (!(cond)) {				\
@@ -129,8 +133,8 @@ void set_can_abort(void *data) {
 }
 
 void alarm_phase() {
-  static uint32_t segments[4*MAX_PASSES] = { 600, 100, 1300 };
-  static const uint32_t segments_pattern[] = { 600, 100, 1300, 500 };
+  static uint32_t segments[4*MAX_PASSES] = { 500, 100, 1000 };
+  static const uint32_t segments_pattern[] = { 500, 100, 1000, 400 };
 
   size_t len = 3;
   for (int i=4; i<4*num_passes; ++i, ++len)
@@ -152,6 +156,8 @@ void alarm_phase() {
 				     call_for_help_callback,
 				     NULL);
   app_timer_register(1000, set_can_abort, NULL);
+  text_layer_set_text(text_layer, active_text);
+  window_stack_push(window, true);
 }
 
 double my_sqrt(double x) {
@@ -177,6 +183,8 @@ void cancel_timer() {
     app_timer_cancel(s_alarm_timer);
     s_alarm_timer = NULL;
   }
+  text_layer_set_text(text_layer, passive_text);
+  window_stack_push(window, true);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "cancel timer");
 }
 
@@ -218,8 +226,8 @@ void handle_init(void) {
   text_layer = text_layer_create(GRect(0, 0, 144, 154));
 
   // Set the text, font, and text alignment
-  text_layer_set_text(text_layer, "Watchdog ready!");
-  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_text(text_layer, passive_text);
+  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
 
   // Add the text layer to the window
